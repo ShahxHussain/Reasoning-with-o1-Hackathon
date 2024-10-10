@@ -1,9 +1,12 @@
 # patent_writing_agent.py
 
 import openai
-from config import OPENAI_API_KEY
+import os
+from dotenv import load_dotenv
 
-openai.api_key = OPENAI_API_KEY
+load_dotenv()  # Load environment variables from .env file
+
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Fetch API key from environment variable
 
 def draft_patent_application(idea, subject_area):
     prompt = f"""
@@ -19,19 +22,18 @@ def draft_patent_application(idea, subject_area):
     {idea}
     """
 
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
+    response = openai.ChatCompletion.create(
+        model="o1-mini",
+        messages=[{"role": "user", "content": prompt}],
         max_tokens=1500,
-        n=1,
-        stop=None,
         temperature=0.5
     )
 
-    return response.choices[0].text.strip()
+    return response.choices[0].message['content'].strip()
 
 # Example usage
-subject_area = "renewable energy technologies"
-idea_description = "Your idea description here."
-patent_application = draft_patent_application(idea_description, subject_area)
-print(patent_application)
+if __name__ == "__main__":
+    subject_area = "renewable energy technologies"
+    idea_description = "Your idea description here."
+    patent_application = draft_patent_application(idea_description, subject_area)
+    print(patent_application)
